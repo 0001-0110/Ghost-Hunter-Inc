@@ -4,6 +4,7 @@
 #
 .DS_Store
 
+/Builds
 /Ghost-Hunter/[Ll]ibrary/
 /Ghost-Hunter/[Tt]emp/
 /Ghost-Hunter/[Oo]bj/
@@ -25,6 +26,8 @@ Ghost-Hunter/[Aa]ssets/Plugins/Editor/JetBrains*
 
 # Visual Studio cache directory
 .vs/
+
+*.vsconfig
 
 # Gradle cache directory
 .gradle/
