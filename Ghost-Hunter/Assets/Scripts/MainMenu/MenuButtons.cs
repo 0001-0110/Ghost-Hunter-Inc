@@ -3,38 +3,38 @@ using UnityEngine.EventSystems;
 
 public class MenuButtons : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public GameObject button;
-    private TextMesh buttonText;
-    public SceneFader fader;
+	public GameObject button;
+	private TextMesh buttonText;
+	public SceneFader fader;
 
-    private void Start()
-    {
-        buttonText = button.GetComponent<TextMesh>();
-    }
-    
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        buttonText.color = new Color32(52, 46, 94, 255);
-    }
+	private void Start()
+	{
+		buttonText = button.GetComponent<TextMesh>();
+	}
 
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        buttonText.color = new Color32(122, 109, 217, 255);
-    }
+	public void OnPointerEnter(PointerEventData eventData)
+	{
+		buttonText.color = new Color32(52, 46, 94, 255);
+	}
 
-    public void PlayButton()
-    {
-        fader.FadeTo("CharacterSelect");
-    }
+	public void OnPointerExit(PointerEventData eventData)
+	{
+		buttonText.color = new Color32(122, 109, 217, 255);
+	}
 
-    public void CreditsButton()
-    {
-        fader.FadeTo("Credits");
-    }
+	public void PlayButton()
+	{
+		fader.FadeTo("CharacterSelect");
+	}
 
-    public void QuitButton()
-    {
-        Debug.Log("Quitting...");
-        Application.Quit();
-    }
+	public void CreditsButton()
+	{
+		fader.FadeTo("Credits");
+	}
+
+	public void QuitButton()
+	{
+		Debug.Log("Quitting...");
+		Application.Quit();
+	}
 }

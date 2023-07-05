@@ -11,40 +11,40 @@ using UnityEngine.UI;
  */
 public class MementoDisplayController : MonoBehaviour
 {
-    private Animator animator;
-    private TextMeshProUGUI myText;
+	private Animator animator;
+	private TextMeshProUGUI myText;
 
-    public GameObject myImage;
+	public GameObject myImage;
 
-    //public Image myImage;
+	//public Image myImage;
 
-   
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        animator = GetComponent<Animator>();
-        myText = GetComponent<TextMeshProUGUI>();
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-        
-    }
+	// Start is called before the first frame update
+	void Start()
+	{
+		animator = GetComponent<Animator>();
+		myText = GetComponent<TextMeshProUGUI>();
+	}
 
-    /*TODO the ultimate goal is to put the memento in a queue, then until the queue is empty,
+	// Update is called once per frame
+	void Update()
+	{
+
+
+	}
+
+	/*TODO the ultimate goal is to put the memento in a queue, then until the queue is empty,
      display one memento, dequeue it, and check again if there is another memento
     */
-    public void displayMemento(Memento memento)
-    {
+	public void DisplayMemento(Memento memento)
+	{
 
-        myText.text = "Found " + memento.name;
-        Image display = myImage.GetComponent<Image>();
-        display.sprite = memento.mySprite;
-        
-        animator.SetTrigger("CollectedMemento");
-    }
+		myText.text = "Found " + memento.name;
+		Image display = myImage.GetComponent<Image>();
+		display.sprite = memento.mySprite;
+
+		animator.SetTrigger("CollectedMemento");
+	}
 
 }

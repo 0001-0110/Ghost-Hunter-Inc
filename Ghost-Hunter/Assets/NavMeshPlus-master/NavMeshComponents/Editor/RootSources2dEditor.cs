@@ -5,33 +5,33 @@ using NavMeshPlus.Components;
 namespace NavMeshPlus.Editors.Extensions
 {
 	[CanEditMultipleObjects]
-    [CustomEditor(typeof(RootSources2d))]
-    internal class RootSources2dEditor: Editor
-    {
-        SerializedProperty _rootSources;
-        void OnEnable()
-        {
-            _rootSources = serializedObject.FindProperty("_rootSources");
-        }
+	[CustomEditor(typeof(RootSources2d))]
+	internal class RootSources2dEditor : Editor
+	{
+		SerializedProperty _rootSources;
+		void OnEnable()
+		{
+			_rootSources = serializedObject.FindProperty("_rootSources");
+		}
 
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
-    
-            var surf = target as RootSources2d;
-            EditorGUILayout.HelpBox("Add GameObjects to create NavMesh form it and it's ancestors", MessageType.Info);
+		public override void OnInspectorGUI()
+		{
+			serializedObject.Update();
 
-            if (surf.NavMeshSurfaceOwner.collectObjects != CollectObjects.Children)
-            {
-                EditorGUILayout.Space();
-                EditorGUILayout.HelpBox("Root Sources are only suitable for 'CollectObjects - Children'", MessageType.Info);
-                EditorGUILayout.Space();
+			RootSources2d surf = target as RootSources2d;
+			EditorGUILayout.HelpBox("Add GameObjects to create NavMesh form it and it's ancestors", MessageType.Info);
 
-            }
-            EditorGUILayout.PropertyField(_rootSources);
+			if (surf.NavMeshSurfaceOwner.collectObjects != CollectObjects.Children)
+			{
+				EditorGUILayout.Space();
+				EditorGUILayout.HelpBox("Root Sources are only suitable for 'CollectObjects - Children'", MessageType.Info);
+				EditorGUILayout.Space();
 
-            serializedObject.ApplyModifiedProperties();
-        }
-    }
+			}
+			EditorGUILayout.PropertyField(_rootSources);
+
+			serializedObject.ApplyModifiedProperties();
+		}
+	}
 
 }

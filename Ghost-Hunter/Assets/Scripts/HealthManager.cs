@@ -5,53 +5,53 @@ using UnityEngine.UI;
 
 public class HealthManager : MonoBehaviour
 {
-    public int maxHealth;
-    public GameObject healthUI;
-    public float invulnerableTime;
-    
-    private int currentHealth;
-    private Image[] hearts;
-    private bool invulnerable;
-    private SpriteRenderer playerSprite;
+	public int maxHealth;
+	public GameObject healthUI;
+	public float invulnerableTime;
 
-    private void Start()
-    {
-        currentHealth = maxHealth;
-        hearts = healthUI.GetComponentsInChildren<Image>();
+	private int currentHealth;
+	private Image[] hearts;
+	private bool invulnerable;
+	private SpriteRenderer playerSprite;
 
-        playerSprite = GameObject.FindWithTag("Player").GetComponent<SpriteRenderer>();
-    }
+	private void Start()
+	{
+		currentHealth = maxHealth;
+		hearts = healthUI.GetComponentsInChildren<Image>();
 
-    public void DecreaseHealth()
-    {
-        if (invulnerable) return;
-        if (currentHealth == 1)
-        {
-            
-            Debug.Log("Player died");
-            GameManager.GameOver();
-        }
+		playerSprite = GameObject.FindWithTag("Player").GetComponent<SpriteRenderer>();
+	}
 
-        
-        StartCoroutine(InvulnerableTime());
-        
-        currentHealth--;
-        for (int i = currentHealth; i < hearts.Length; i++)
-        {
-            hearts[i].GetComponent<Animator>().Play("LooseHP");
-        }
+	public void DecreaseHealth()
+	{
+		if (invulnerable) return;
+		if (currentHealth == 1)
+		{
+
+			Debug.Log("Player died");
+			GameManager.GameOver();
+		}
 
 
-        playerSprite.DOColor(new Color(1, 0, 0), 0.2f);
-        playerSprite.DOColor(new Color(1, 1, 1), 0.2f).SetDelay(0.3f);
-        DOTween.Play(playerSprite);
-        
-    }
+		StartCoroutine(InvulnerableTime());
 
-    IEnumerator InvulnerableTime()
-    {
-        invulnerable = true;
-        yield return new WaitForSeconds(invulnerableTime);
-        invulnerable = false;
-    }
+		currentHealth--;
+		for (int i = currentHealth; i < hearts.Length; i++)
+		{
+			hearts[i].GetComponent<Animator>().Play("LooseHP");
+		}
+
+
+		playerSprite.DOColor(new Color(1, 0, 0), 0.2f);
+		playerSprite.DOColor(new Color(1, 1, 1), 0.2f).SetDelay(0.3f);
+		DOTween.Play(playerSprite);
+
+	}
+
+	IEnumerator InvulnerableTime()
+	{
+		invulnerable = true;
+		yield return new WaitForSeconds(invulnerableTime);
+		invulnerable = false;
+	}
 }

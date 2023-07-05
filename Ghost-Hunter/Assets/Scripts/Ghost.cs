@@ -5,223 +5,221 @@ using UnityEngine.Serialization;
 
 public class Ghost : MonoBehaviour
 {
-    public GameManager gameManager;
+	public GameManager gameManager;
 
-    public Transform target;
-    [FormerlySerializedAs("ghostSprite")] public GameObject spriteObject;
-    public bool isattacking = false;
-    public int angerLevel = 1;
-    public int minAnger = 1;
-    public bool updating = true;
-    public bool stunned;
+	public Transform target;
+	[FormerlySerializedAs("ghostSprite")] public GameObject spriteObject;
+	public bool isattacking = false;
+	public int angerLevel = 1;
+	public int minAnger = 1;
+	public bool updating = true;
+	public bool stunned;
 
-    public AudioClip[] ambientSounds;
-    public AudioClip[] angerSounds;
+	public AudioClip[] ambientSounds;
+	public AudioClip[] angerSounds;
 
-    private NavMeshAgent agent;
-    private Animator animController;
-    private SpriteRenderer sprite;
-    private AudioSource audioSource;
-    private float angerTimer;
-    private bool canGetAngry = true;
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        agent = GetComponent<NavMeshAgent>();
-        agent.SetDestination(new Vector3(target.position.x + Random.Range(-10.0f, 10.0f),target.position.y + Random.Range(-10.0f, 10.0f), target.position.z));
-        animController = spriteObject.GetComponent<Animator>();
-        sprite = spriteObject.GetComponent<SpriteRenderer>();
-        audioSource = GetComponent<AudioSource>();
+	private NavMeshAgent agent;
+	private Animator animController;
+	private SpriteRenderer sprite;
+	private AudioSource audioSource;
+	private float angerTimer;
+	private bool canGetAngry = true;
 
-        angerTimer = 0.4f;
-            
-        UpdateDifficulty();
-        StartCoroutine(UpdateTarget());
-        StartCoroutine(Calm());
-        StartCoroutine(playSound());
-    }
+	// Start is called before the first frame update
+	void Start()
+	{
+		agent = GetComponent<NavMeshAgent>();
+		agent.SetDestination(new Vector3(target.position.x + Random.Range(-10.0f, 10.0f), target.position.y + Random.Range(-10.0f, 10.0f), target.position.z));
+		animController = spriteObject.GetComponent<Animator>();
+		sprite = spriteObject.GetComponent<SpriteRenderer>();
+		audioSource = GetComponent<AudioSource>();
 
-    // Update is called once per frame
-    void Update()
-    {
-        spriteObject.transform.rotation = Quaternion.identity;
-        if (agent.velocity.magnitude > 1.0f && !isattacking)
-        {
-            animController.Play("Run");
-        }
-        else if (agent.velocity.magnitude > 0.0f && !isattacking)
-        {
-            animController.Play("Walk");
-        }
-        else if (!isattacking)
-        {
-            animController.Play("Idle");
-        }
+		angerTimer = 0.4f;
 
-        if (agent.velocity.x < 0)
-        {
-            sprite.flipX = true;
-        }
-        else if (agent.velocity.x > 0)
-        {
-            sprite.flipX = false;
-        }
-    }
+		UpdateDifficulty();
+		StartCoroutine(UpdateTarget());
+		StartCoroutine(Calm());
+		StartCoroutine(PlaySound());
+	}
 
-    public IEnumerator attack()
-    {
-        isattacking = true;
-        updating = false;
-        agent.speed = 0;
-        agent.velocity = new Vector3();
-        animController.Play("Attack");
-        yield return new WaitForSeconds(1);
-        isattacking = false;
-        updating = true;
-        UpdateDifficulty();
-    }
+	// Update is called once per frame
+	void Update()
+	{
+		spriteObject.transform.rotation = Quaternion.identity;
+		if (agent.velocity.magnitude > 1.0f && !isattacking)
+		{
+			animController.Play("Run");
+		}
+		else if (agent.velocity.magnitude > 0.0f && !isattacking)
+		{
+			animController.Play("Walk");
+		}
+		else if (!isattacking)
+		{
+			animController.Play("Idle");
+		}
 
-    void FoundMemento(int id)
-    {
-        IncreaseMinAnger();
-    }
+		if (agent.velocity.x < 0)
+		{
+			sprite.flipX = true;
+		}
+		else if (agent.velocity.x > 0)
+		{
+			sprite.flipX = false;
+		}
+	}
 
-    public void IncreaseMinAnger(int by = 5)
-    {
-        minAnger += 5;
-        if (angerLevel < minAnger)
-        {
-            SetAnger(minAnger);  
-        }
-    }
+	public IEnumerator Attack()
+	{
+		isattacking = true;
+		updating = false;
+		agent.speed = 0;
+		agent.velocity = new Vector3();
+		animController.Play("Attack");
+		yield return new WaitForSeconds(1);
+		isattacking = false;
+		updating = true;
+		UpdateDifficulty();
+	}
 
-    public void IncreaseAnger(int by = 1)
-    {
-        if (!canGetAngry) return;
-        StartCoroutine(angerDelay());
-        angerLevel += by;
-        UpdateDifficulty();
-    }
+	void FoundMemento(int id)
+	{
+		IncreaseMinAnger();
+	}
 
-    public void DecreaseAnger(int by = 1)
-    {
-        if (angerLevel <= minAnger) return;
-        angerLevel -= by;
-        UpdateDifficulty();
-    }
+	public void IncreaseMinAnger(int increment = 5)
+	{
+		minAnger += increment;
+		if (angerLevel < minAnger)
+			SetAnger(minAnger);
+	}
 
-    public void SetAnger(int to)
-    {
-        angerLevel = to;
-        UpdateDifficulty();
-    }
+	public void IncreaseAnger(int by = 1)
+	{
+		if (!canGetAngry) return;
+		StartCoroutine(AngerDelay());
+		angerLevel += by;
+		UpdateDifficulty();
+	}
 
-    private void UpdateDifficulty()
-    {
-        switch (angerLevel)
-        {
-            case <5:
-                agent.acceleration = 2.1f;
-                agent.speed = 1.5f;
-                agent.stoppingDistance = 3;
-                break;
-            case <10:
-                agent.acceleration = 2.2f;
-                agent.speed = 2.0f;
-                agent.stoppingDistance = 3;
-                break;
-            case <15:
-                agent.acceleration = 5f;
-                agent.speed = 2.5f;
-                agent.stoppingDistance = 2;
-                break;
-            case <20 :
-                agent.acceleration = 10f;
-                agent.speed = 3.0f;
-                agent.stoppingDistance = 0;
-                break;
-            case <25 :
-                agent.acceleration = 10f;
-                agent.speed = 3.5f;
-                break;
-            default:
-                agent.acceleration = 15f;
-                agent.speed = 4.0f;
-                break;
-        }
-        StopCoroutine(UpdateTarget());
-        StartCoroutine(UpdateTarget());
-    }
+	public void DecreaseAnger(int by = 1)
+	{
+		if (angerLevel <= minAnger) return;
+		angerLevel -= by;
+		UpdateDifficulty();
+	}
 
-    public void Stun()
-    {
-        StopCoroutine(StunTimer());
-        StartCoroutine(StunTimer());
-    }
+	public void SetAnger(int to)
+	{
+		angerLevel = to;
+		UpdateDifficulty();
+	}
 
-    IEnumerator UpdateTarget()
-    {
-        while (updating && !stunned)
-        {
-            Vector3 targetPosition = target.position;
-            Vector3 currentPosition = transform.position;
-            yield return new WaitForSeconds(8.0f/angerLevel);
-            int followChance = Random.Range(1, 11) * angerLevel;
-            if (followChance > 60)
-            {
-                agent.SetDestination(targetPosition);
-            }
-            else if (followChance < 30 && angerLevel < 20)
-            {
-                agent.SetDestination(new Vector3(targetPosition.x + Random.Range(-15.0f, 15.0f),targetPosition.y + Random.Range(-15.0f, 15.0f), currentPosition.z));
-            }
-        }
-    }
+	private void UpdateDifficulty()
+	{
+		switch (angerLevel)
+		{
+			case < 5:
+				agent.acceleration = 2.1f;
+				agent.speed = 1.5f;
+				agent.stoppingDistance = 3;
+				break;
+			case < 10:
+				agent.acceleration = 2.2f;
+				agent.speed = 2.0f;
+				agent.stoppingDistance = 3;
+				break;
+			case < 15:
+				agent.acceleration = 5f;
+				agent.speed = 2.5f;
+				agent.stoppingDistance = 2;
+				break;
+			case < 20:
+				agent.acceleration = 10f;
+				agent.speed = 3.0f;
+				agent.stoppingDistance = 0;
+				break;
+			case < 25:
+				agent.acceleration = 10f;
+				agent.speed = 3.5f;
+				break;
+			default:
+				agent.acceleration = 15f;
+				agent.speed = 4.0f;
+				break;
+		}
+		StopCoroutine(UpdateTarget());
+		StartCoroutine(UpdateTarget());
+	}
 
-    IEnumerator Calm()
-    {
-        while (updating)
-        {
-            yield return new WaitForSeconds(1);
-            DecreaseAnger();
-        }
-    }
+	public void Stun()
+	{
+		StopCoroutine(StunTimer());
+		StartCoroutine(StunTimer());
+	}
 
-    IEnumerator StunTimer()
-    {
-        stunned = true;
-        agent.speed = 0;
-        agent.velocity = new Vector3();
-        yield return new WaitForSeconds(2);
-        stunned = false;
-        UpdateDifficulty();
-    }
+	IEnumerator UpdateTarget()
+	{
+		while (updating && !stunned)
+		{
+			Vector3 targetPosition = target.position;
+			Vector3 currentPosition = transform.position;
+			yield return new WaitForSeconds(8.0f / angerLevel);
+			int followChance = Random.Range(1, 11) * angerLevel;
+			if (followChance > 60)
+			{
+				agent.SetDestination(targetPosition);
+			}
+			else if (followChance < 30 && angerLevel < 20)
+			{
+				agent.SetDestination(new Vector3(targetPosition.x + Random.Range(-15.0f, 15.0f), targetPosition.y + Random.Range(-15.0f, 15.0f), currentPosition.z));
+			}
+		}
+	}
 
-    IEnumerator playSound()
-    {
-        while (updating)
-        {
-            yield return new WaitForSeconds(Random.Range(20, 50f));
-            if (angerLevel > 15)
-            {
-                audioSource.clip = angerSounds[Random.Range(0, angerSounds.Length)];
-                audioSource.pitch = Random.Range(0.8f, 1.2f);
-                audioSource.Play();
-            }
-            else
-            {
-                audioSource.clip = ambientSounds[Random.Range(0, ambientSounds.Length)];
-                audioSource.pitch = Random.Range(0.8f, 1.2f);
-                audioSource.Play();
-            }
-        }
-    }
+	IEnumerator Calm()
+	{
+		while (updating)
+		{
+			yield return new WaitForSeconds(1);
+			DecreaseAnger();
+		}
+	}
 
-    IEnumerator angerDelay()
-    {
-        canGetAngry = false;
-        yield return new WaitForSeconds(angerTimer);
-        canGetAngry = true;
-    }
+	IEnumerator StunTimer()
+	{
+		stunned = true;
+		agent.speed = 0;
+		agent.velocity = new Vector3();
+		yield return new WaitForSeconds(2);
+		stunned = false;
+		UpdateDifficulty();
+	}
+
+	IEnumerator PlaySound()
+	{
+		while (updating)
+		{
+			yield return new WaitForSeconds(Random.Range(20, 50f));
+			if (angerLevel > 15)
+			{
+				audioSource.clip = angerSounds[Random.Range(0, angerSounds.Length)];
+				audioSource.pitch = Random.Range(0.8f, 1.2f);
+				audioSource.Play();
+			}
+			else
+			{
+				audioSource.clip = ambientSounds[Random.Range(0, ambientSounds.Length)];
+				audioSource.pitch = Random.Range(0.8f, 1.2f);
+				audioSource.Play();
+			}
+		}
+	}
+
+	IEnumerator AngerDelay()
+	{
+		canGetAngry = false;
+		yield return new WaitForSeconds(angerTimer);
+		canGetAngry = true;
+	}
 }

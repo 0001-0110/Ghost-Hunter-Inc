@@ -5,225 +5,236 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("General")]
+	[Header("General")]
 
-    public GameManager gameManager;
-    public Camera cam;
-    
-    [Header("Look Detection")]
-    public float flashLightRadius = 5f;
+	public GameManager gameManager;
+	public Camera cam;
 
-    public float pickupRadius = 2f;
-    [Range(1, 360)]public float angle = 25f;
-    public LayerMask targetLayer;
-    public LayerMask obstructionLayer;
-    private Vector2 lookDir;
-    
+	[Header("Look Detection")]
+	public float flashLightRadius = 5f;
+
+	public float pickupRadius = 2f;
+	[Range(1, 360)] public float angle = 25f;
+	public LayerMask targetLayer;
+	public LayerMask obstructionLayer;
+	private Vector2 lookDir;
 
 
-    [Header("Flashlight")]
-    public Light2D flashlight;
-    private Transform rotatedTransform;
-    private bool flashlightOn = true;
-    private bool uvOn = false;
-    private float battery = 100f;
-    private float uvBattery = 50f;
-    public float depleteRate = 0.5f;
-    public float rechargeRate = 2f;
-    public Image batteryBar;
-    Vector2 mousePos;
-    public Image uvBar;
 
-    private Vector2 lightPosition2D;
-    //[Header("Mementos")]
-    //public float mementoCheckingDistance = 1f;
-    //public GameObject[] mementos;
+	[Header("Flashlight")]
+	public Light2D flashlight;
+	private Transform rotatedTransform;
+	private bool flashlightOn = true;
+	private bool uvOn = false;
+	private float battery = 100f;
+	private float uvBattery = 50f;
+	public float depleteRate = 0.5f;
+	public float rechargeRate = 2f;
+	public Image batteryBar;
+	Vector2 mousePos;
+	public Image uvBar;
 
-    private GameObject ritual;
-    private Ghost ghost;
-    private Memento interactableMemento;
+	private Vector2 lightPosition2D;
+	//[Header("Mementos")]
+	//public float mementoCheckingDistance = 1f;
+	//public GameObject[] mementos;
 
-    public delegate void MementoFound(int id);
+	private GameObject ritual;
+	private Ghost ghost;
+	private Memento interactableMemento;
 
-    //public static event MementoFound onMementoFound;    
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
-        lightPosition2D = new Vector2(flashlight.transform.position.x, flashlight.transform.position.y);
-        lookDir = mousePos - lightPosition2D;
-        lookDir.Normalize();
-        rotatedTransform =  flashlight.transform;
+	public delegate void MementoFound(int id);
 
-        StartCoroutine(CheckFov());
-    }
+	//public static event MementoFound onMementoFound;    
 
-    // Update is called once per frame
-    void Update()
-    {
-        mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+	// Start is called before the first frame update
+	void Start()
+	{
+		mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+		lightPosition2D = new Vector2(flashlight.transform.position.x, flashlight.transform.position.y);
+		lookDir = mousePos - lightPosition2D;
+		lookDir.Normalize();
+		rotatedTransform = flashlight.transform;
 
-        if(Input.GetMouseButtonDown(0)){
-            ToggleFlashlight();
-        }
+		StartCoroutine(CheckFov());
+	}
 
-        if (Input.GetMouseButtonDown(1))
-        {
-            ToggleUVLight();
-        }
-        
-        //altered this part of the script so that it looks for mementos and also looks for the ritual
-        if(Input.GetKeyDown(KeyCode.E) )
-        {
-            if (interactableMemento != null)
-            {
-                gameManager.FindMemento(interactableMemento);
-                interactableMemento = null;
-            }
+	// Update is called once per frame
+	void Update()
+	{
+		mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
 
-            if (ritual != null)
-            {
-                gameManager.RitualStarted();
-                ritual = null;
-            }
-            
-        }
-        
-    }
+		if (Input.GetMouseButtonDown(0))
+		{
+			ToggleFlashlight();
+		}
 
-    private void FixedUpdate()
-    {   
-        //finding light direction facing
-        lightPosition2D = new Vector2(flashlight.transform.position.x, flashlight.transform.position.y);
-        lookDir = mousePos - lightPosition2D;
-        lookDir.Normalize();
-        float angle = Mathf.Atan2(lookDir.y ,lookDir.x) * Mathf.Rad2Deg - 90f;
-        flashlight.transform.rotation = Quaternion.Euler(0, 0, angle);
+		if (Input.GetMouseButtonDown(1))
+		{
+			ToggleUVLight();
+		}
 
-        if (battery <= 0){
-            ToggleFlashlight();
-        }
+		//altered this part of the script so that it looks for mementos and also looks for the ritual
+		if (Input.GetKeyDown(KeyCode.E))
+		{
+			if (interactableMemento != null)
+			{
+				gameManager.FindMemento(interactableMemento);
+				interactableMemento = null;
+			}
 
-        if (uvBattery <= 0)
-        {
-            ToggleUVLight();
-        }
+			if (ritual != null)
+			{
+				gameManager.RitualStarted();
+				ritual = null;
+			}
 
-        //can change to make recharging take a bit after or something
-        if(flashlightOn){
-            battery -= depleteRate;
-        } else if(battery < 100) {
-            battery += rechargeRate;
-        }
+		}
 
-        if (uvOn) {
-            uvBattery -= depleteRate * 2;
-        } else if (uvBattery < 50)
-        {
-            uvBattery += rechargeRate / 16.0f;
-        }
+	}
 
-        batteryBar.fillAmount = battery / 100.0f;
-        uvBar.fillAmount = uvBattery / 50.0f;
-    }
+	private void FixedUpdate()
+	{
+		//finding light direction facing
+		lightPosition2D = new Vector2(flashlight.transform.position.x, flashlight.transform.position.y);
+		lookDir = mousePos - lightPosition2D;
+		lookDir.Normalize();
+		float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
+		flashlight.transform.rotation = Quaternion.Euler(0, 0, angle);
 
-    void ToggleFlashlight(){
-        if (uvOn)
-        {
-            uvOn = false;
-            flashlight.color = Color.white;
-            flashlight.enabled = false;
-        }
-        flashlightOn = !flashlightOn;
-        flashlight.enabled = flashlightOn;
-        StopCoroutine(CheckFov());
-        StartCoroutine(CheckFov());
-    }
+		if (battery <= 0)
+		{
+			ToggleFlashlight();
+		}
 
-    void ToggleUVLight()
-    {
-        if (uvOn)
-        {
-            uvOn = false;
-            flashlight.color = Color.white;
-            flashlight.enabled = false;
-        }
-        else if(uvBattery > 15)
-        {
-            uvOn = true;
-            flashlight.color = Color.magenta;
-            flashlight.enabled = true;
-            flashlightOn = false;
-            StartCoroutine(CheckFov());
-        }
-    }
+		if (uvBattery <= 0)
+		{
+			ToggleUVLight();
+		}
 
-    IEnumerator CheckFov()
-    {
-        while (true)
-        {
-            
-            yield return new WaitForSeconds(0.4f);
-            gameManager.HideInteractable();
-            interactableMemento = null;
-            ritual = null;//added this here to change the ritual to null when you aren't actively looking at it
-            Collider2D[] rangeCheck = Physics2D.OverlapCircleAll(rotatedTransform.position, flashLightRadius, targetLayer);
-            foreach (var interactable in rangeCheck)
-            {
-                Vector2 dirToTarget = interactable.transform.position - rotatedTransform.position;
-                float distanceToTarget = Vector2.Distance(interactable.transform.position, rotatedTransform.position);
-                
-                // Is the target object within our view cone or very close
-                if (!(Vector2.Angle(rotatedTransform.up, dirToTarget) < angle / 2) && distanceToTarget > 0.7f) continue;
-                
-                // Is the target object blocked by anything
-                if (Physics2D.Raycast(rotatedTransform.position, dirToTarget, distanceToTarget, obstructionLayer)) continue;
-                
-                // Check what kind of object we just found
-                if (interactable.gameObject.CompareTag("Ghost")) // If it's the ghost, use the flashlight radius
-                {
-                    if (flashlightOn)
-                    {
-                        gameManager.AngerGhost(1);
+		//can change to make recharging take a bit after or something
+		if (flashlightOn)
+		{
+			battery -= depleteRate;
+		}
+		else if (battery < 100)
+		{
+			battery += rechargeRate;
+		}
 
-                    } else if (uvOn)
-                    {
-                        gameManager.StunGhost();
-                    }
-                    
-                } else if (interactable.gameObject.CompareTag("Memento") && distanceToTarget <= pickupRadius) // If it's an item, use the pickup radius
-                {
-                    gameManager.ShowInteractable(interactable.transform.position);
-                    interactableMemento = interactable.gameObject.GetComponent<Memento>();
-                } else if (interactable.gameObject.CompareTag("Ritual") && distanceToTarget <= pickupRadius)
-                {
-                    ritual = interactable.gameObject;
-                    gameManager.ShowInteractable(interactable.transform.position);
-                }
-            }
-        }
-    }
+		if (uvOn)
+		{
+			uvBattery -= depleteRate * 2;
+		}
+		else if (uvBattery < 50)
+		{
+			uvBattery += rechargeRate / 16.0f;
+		}
 
-    // void OnDrawGizmos(){
-    //     //Gizmos.DrawWireCube(transform.position, boxSize);
-    //     if (rotatedTransform == null) rotatedTransform = transform;
-    //
-    //     Gizmos.color = Color.white;
-    //     UnityEditor.Handles.DrawWireDisc(rotatedTransform.position, Vector3.forward, flashLightRadius);
-    //     UnityEditor.Handles.DrawWireDisc(rotatedTransform.position, Vector3.forward, pickupRadius);
-    //
-    //     Vector3 angle1 = DirectionFromAngle(-rotatedTransform.eulerAngles.z, -angle / 2);
-    //     Vector3 angle2 = DirectionFromAngle(-rotatedTransform.eulerAngles.z, angle / 2);
-    //
-    //     Gizmos.color = Color.green;
-    //     Gizmos.DrawLine(rotatedTransform.position, rotatedTransform.position + angle1 * flashLightRadius);
-    //     Gizmos.DrawLine(rotatedTransform.position, rotatedTransform.position + angle2 * flashLightRadius);
-    // }
+		batteryBar.fillAmount = battery / 100.0f;
+		uvBar.fillAmount = uvBattery / 50.0f;
+	}
 
-    // private Vector2 DirectionFromAngle(float eulerY, float degreeAngle)
-    // {
-    //     degreeAngle += eulerY;
-    //     return new Vector2(Mathf.Sin(degreeAngle * Mathf.Deg2Rad), Mathf.Cos(degreeAngle * Mathf.Deg2Rad));
-    // }
+	void ToggleFlashlight()
+	{
+		if (uvOn)
+		{
+			uvOn = false;
+			flashlight.color = Color.white;
+			flashlight.enabled = false;
+		}
+		flashlightOn = !flashlightOn;
+		flashlight.enabled = flashlightOn;
+		StopCoroutine(CheckFov());
+		StartCoroutine(CheckFov());
+	}
+
+	void ToggleUVLight()
+	{
+		if (uvOn)
+		{
+			uvOn = false;
+			flashlight.color = Color.white;
+			flashlight.enabled = false;
+		}
+		else if (uvBattery > 15)
+		{
+			uvOn = true;
+			flashlight.color = Color.magenta;
+			flashlight.enabled = true;
+			flashlightOn = false;
+			StartCoroutine(CheckFov());
+		}
+	}
+
+	IEnumerator CheckFov()
+	{
+		while (true)
+		{
+
+			yield return new WaitForSeconds(0.4f);
+			gameManager.HideInteractable();
+			interactableMemento = null;
+			ritual = null;//added this here to change the ritual to null when you aren't actively looking at it
+			Collider2D[] rangeCheck = Physics2D.OverlapCircleAll(rotatedTransform.position, flashLightRadius, targetLayer);
+			foreach (Collider2D interactable in rangeCheck)
+			{
+				Vector2 dirToTarget = interactable.transform.position - rotatedTransform.position;
+				float distanceToTarget = Vector2.Distance(interactable.transform.position, rotatedTransform.position);
+
+				// Is the target object within our view cone or very close
+				if (!(Vector2.Angle(rotatedTransform.up, dirToTarget) < angle / 2) && distanceToTarget > 0.7f) continue;
+
+				// Is the target object blocked by anything
+				if (Physics2D.Raycast(rotatedTransform.position, dirToTarget, distanceToTarget, obstructionLayer)) continue;
+
+				// Check what kind of object we just found
+				if (interactable.gameObject.CompareTag("Ghost")) // If it's the ghost, use the flashlight radius
+				{
+					if (flashlightOn)
+					{
+						gameManager.AngerGhost(1);
+
+					}
+					else if (uvOn)
+					{
+						gameManager.StunGhost();
+					}
+
+				}
+				else if (interactable.gameObject.CompareTag("Memento") && distanceToTarget <= pickupRadius) // If it's an item, use the pickup radius
+				{
+					gameManager.ShowInteractable(interactable.transform.position);
+					interactableMemento = interactable.gameObject.GetComponent<Memento>();
+				}
+				else if (interactable.gameObject.CompareTag("Ritual") && distanceToTarget <= pickupRadius)
+				{
+					ritual = interactable.gameObject;
+					gameManager.ShowInteractable(interactable.transform.position);
+				}
+			}
+		}
+	}
+
+	// void OnDrawGizmos(){
+	//     //Gizmos.DrawWireCube(transform.position, boxSize);
+	//     if (rotatedTransform == null) rotatedTransform = transform;
+	//
+	//     Gizmos.color = Color.white;
+	//     UnityEditor.Handles.DrawWireDisc(rotatedTransform.position, Vector3.forward, flashLightRadius);
+	//     UnityEditor.Handles.DrawWireDisc(rotatedTransform.position, Vector3.forward, pickupRadius);
+	//
+	//     Vector3 angle1 = DirectionFromAngle(-rotatedTransform.eulerAngles.z, -angle / 2);
+	//     Vector3 angle2 = DirectionFromAngle(-rotatedTransform.eulerAngles.z, angle / 2);
+	//
+	//     Gizmos.color = Color.green;
+	//     Gizmos.DrawLine(rotatedTransform.position, rotatedTransform.position + angle1 * flashLightRadius);
+	//     Gizmos.DrawLine(rotatedTransform.position, rotatedTransform.position + angle2 * flashLightRadius);
+	// }
+
+	// private Vector2 DirectionFromAngle(float eulerY, float degreeAngle)
+	// {
+	//     degreeAngle += eulerY;
+	//     return new Vector2(Mathf.Sin(degreeAngle * Mathf.Deg2Rad), Mathf.Cos(degreeAngle * Mathf.Deg2Rad));
+	// }
 }
