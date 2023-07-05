@@ -3,33 +3,27 @@ using UnityEngine.UI;
 
 public class InventorySlotScript : MonoBehaviour
 {
-    public GameObject myImage;
-    public GameObject redFlash;
-    private Image displayedImage;
-    private Animator animations;
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        displayedImage = myImage.GetComponent<Image>();
-        animations = redFlash.GetComponent<Animator>();
-    }
+    private const string FAILRITUALANIMATION = "FailRitual";
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+	private Image itemIcon;
+    private Animator redFlashAnimation;
 
-    public void acceptImage(Sprite image)
+	public void Start()
+	{
+        // We nee to access the first child specificly since both of them have an image
+		itemIcon = transform.GetChild(0).GetComponent<Image>();
+		redFlashAnimation = GetComponentInChildren<Animator>();
+	}
+
+	public void AcceptImage(Sprite image)
     {
-        displayedImage.sprite = image;
-        myImage.GetComponent<CanvasGroup>().alpha = 1;
+        itemIcon.sprite = image;
+        gameObject.GetComponent<CanvasGroup>().alpha = 1;
         //animations.SetTrigger("AddItem");
     }
 
-    public void flashRed()
+    public void FlashRed()
     {
-        animations.SetTrigger("FailRitual");
+        redFlashAnimation.SetTrigger(FAILRITUALANIMATION);
     }
 }

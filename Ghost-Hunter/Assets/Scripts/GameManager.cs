@@ -63,7 +63,7 @@ public class GameManager : MonoBehaviour
         
         //displays the UI for finding the memento
         mementoDisplayUi.GetComponent<MementoDisplayController>().displayMemento(memento);
-        inventory.GetComponent<InventoryScript>().addMemento(memento);
+        inventory.GetComponent<InventoryScript>().AddMemento(memento);
         
         ghost.IncreaseMinAnger();
         
@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour
 
             
             //have the remaining inventory slots flash red
-            inventory.GetComponent<InventoryScript>().failRitual();
+            inventory.GetComponent<InventoryScript>().FailRitual();
             print("More Mementos Needed");
 
         }
