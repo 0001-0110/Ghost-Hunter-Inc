@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace NavMeshPlus.Extensions
 {
-    public interface INavMeshExtensionsProvider
+	public interface INavMeshExtensionsProvider
     {
         int Count { get; }
         NavMeshExtension this[int index] { get; }

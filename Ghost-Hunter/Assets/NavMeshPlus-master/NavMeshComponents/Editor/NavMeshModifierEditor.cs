@@ -1,12 +1,10 @@
 using NavMeshPlus.Components;
-using NavMeshPlus.Extensions;
 using UnityEditor;
 using UnityEditor.AI;
-using UnityEngine.AI;
 
 namespace NavMeshPlus.Editors.Components
-{ 
-    [CanEditMultipleObjects]
+{
+	[CanEditMultipleObjects]
     [CustomEditor(typeof(NavMeshModifier))]
     class NavMeshModifierEditor : Editor
     {

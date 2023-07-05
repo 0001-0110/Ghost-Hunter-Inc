@@ -1,15 +1,13 @@
 using UnityEditor.IMGUI.Controls;
 using UnityEditorInternal;
-using UnityEngine.AI;
 using UnityEngine;
-using NavMeshPlus.Extensions;
 using UnityEditor;
 using UnityEditor.AI;
 using NavMeshPlus.Components;
 
 namespace NavMeshPlus.Editors.Components
 {
-    [CanEditMultipleObjects]
+	[CanEditMultipleObjects]
     [CustomEditor(typeof(NavMeshModifierVolume))]
     class NavMeshModifierVolumeEditor : Editor
     {
